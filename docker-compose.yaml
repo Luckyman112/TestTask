@@ -1,0 +1,51 @@
+version: '3.9'
+
+services:
+  vite-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"  # Frontend port
+    volumes:
+      - ./frontend:/app  # Mount the frontend code directory
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+
+  php-backend:
+    build:
+      context: ./backend  # Path to the backend Dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"  # Backend port
+    volumes:
+      - ./backend:/var/www/html  # Mount the backend code directory
+    environment:
+      - DB_HOST=db
+      - DB_NAME=scandiweb
+      - DB_USER=root
+      - DB_PASSWORD=root
+
+  db:
+    image: mariadb:latest
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: scandiweb
+    volumes:
+      - db_data:/var/lib/mysql
+
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8081:80"  # phpMyAdmin port
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root
+
+volumes:
+  db_data:
